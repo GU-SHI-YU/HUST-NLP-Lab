@@ -1,0 +1,42 @@
+2021-0608 17:12:01 DEBUG    Starting new HTTPS connection (1): huggingface.co:443
+2021-0608 17:12:02 DEBUG    https://huggingface.co:443 "HEAD /clue/albert_chinese_tiny/resolve/main/config.json HTTP/1.1" 200 0
+2021-0608 17:12:02 DEBUG    Starting new HTTPS connection (1): huggingface.co:443
+2021-0608 17:12:03 DEBUG    https://huggingface.co:443 "HEAD /clue/albert_chinese_tiny/resolve/main/pytorch_model.bin HTTP/1.1" 302 0
+2021-0608 17:12:03 DEBUG    word_embeds.embeddings.word_embeddings.weight: torch.Size([21128, 128]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.embeddings.position_embeddings.weight: torch.Size([512, 128]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.embeddings.token_type_embeddings.weight: torch.Size([2, 128]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.embeddings.LayerNorm.weight: torch.Size([128]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.embeddings.LayerNorm.bias: torch.Size([128]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.encoder.embedding_hidden_mapping_in.weight: torch.Size([312, 128]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.encoder.embedding_hidden_mapping_in.bias: torch.Size([312]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.encoder.albert_layer_groups.0.albert_layers.0.full_layer_layer_norm.weight: torch.Size([312]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.encoder.albert_layer_groups.0.albert_layers.0.full_layer_layer_norm.bias: torch.Size([312]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.encoder.albert_layer_groups.0.albert_layers.0.attention.query.weight: torch.Size([312, 312]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.encoder.albert_layer_groups.0.albert_layers.0.attention.query.bias: torch.Size([312]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.encoder.albert_layer_groups.0.albert_layers.0.attention.key.weight: torch.Size([312, 312]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.encoder.albert_layer_groups.0.albert_layers.0.attention.key.bias: torch.Size([312]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.encoder.albert_layer_groups.0.albert_layers.0.attention.value.weight: torch.Size([312, 312]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.encoder.albert_layer_groups.0.albert_layers.0.attention.value.bias: torch.Size([312]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.encoder.albert_layer_groups.0.albert_layers.0.attention.dense.weight: torch.Size([312, 312]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.encoder.albert_layer_groups.0.albert_layers.0.attention.dense.bias: torch.Size([312]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.encoder.albert_layer_groups.0.albert_layers.0.attention.LayerNorm.weight: torch.Size([312]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.encoder.albert_layer_groups.0.albert_layers.0.attention.LayerNorm.bias: torch.Size([312]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.encoder.albert_layer_groups.0.albert_layers.0.ffn.weight: torch.Size([1248, 312]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.encoder.albert_layer_groups.0.albert_layers.0.ffn.bias: torch.Size([1248]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.encoder.albert_layer_groups.0.albert_layers.0.ffn_output.weight: torch.Size([312, 1248]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.encoder.albert_layer_groups.0.albert_layers.0.ffn_output.bias: torch.Size([312]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.pooler.weight: torch.Size([312, 312]), require_grad=True
+2021-0608 17:12:03 DEBUG    word_embeds.pooler.bias: torch.Size([312]), require_grad=True
+2021-0608 17:12:03 DEBUG    lstm.weight_ih_l0: torch.Size([1024, 312]), require_grad=True
+2021-0608 17:12:03 DEBUG    lstm.weight_hh_l0: torch.Size([1024, 256]), require_grad=True
+2021-0608 17:12:03 DEBUG    lstm.bias_ih_l0: torch.Size([1024]), require_grad=True
+2021-0608 17:12:03 DEBUG    lstm.bias_hh_l0: torch.Size([1024]), require_grad=True
+2021-0608 17:12:03 DEBUG    lstm.weight_ih_l0_reverse: torch.Size([1024, 312]), require_grad=True
+2021-0608 17:12:03 DEBUG    lstm.weight_hh_l0_reverse: torch.Size([1024, 256]), require_grad=True
+2021-0608 17:12:03 DEBUG    lstm.bias_ih_l0_reverse: torch.Size([1024]), require_grad=True
+2021-0608 17:12:03 DEBUG    lstm.bias_hh_l0_reverse: torch.Size([1024]), require_grad=True
+2021-0608 17:12:03 DEBUG    hidden2tag.weight: torch.Size([4, 512]), require_grad=True
+2021-0608 17:12:03 DEBUG    hidden2tag.bias: torch.Size([4]), require_grad=True
+2021-0608 17:12:03 DEBUG    crf.start_transitions: torch.Size([4]), require_grad=True
+2021-0608 17:12:03 DEBUG    crf.end_transitions: torch.Size([4]), require_grad=True
+2021-0608 17:12:03 DEBUG    crf.transitions: torch.Size([4, 4]), require_grad=True
