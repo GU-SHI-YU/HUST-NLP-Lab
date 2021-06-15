@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 from torchcrf import CRF
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
-from transformers import AlbertModel
+from transformers import AlbertModel, BertTokenizer
 
 
 class CWS(nn.Module):
@@ -16,6 +16,7 @@ class CWS(nn.Module):
         self.tag2id = tag2id
         self.tagset_size = len(tag2id)
 
+        self.tokenizer = BertTokenizer.from_pretrained("clue/albert_chinese_tiny")
         self.word_embeds = AlbertModel.from_pretrained("clue/albert_chinese_tiny")
 
         self.lstm = nn.LSTM(embedding_dim, hidden_dim // 2, num_layers=1,
@@ -28,24 +29,28 @@ class CWS(nn.Module):
         return (torch.randn(2, batch_size, self.hidden_dim // 2, device=device),
                 torch.randn(2, batch_size, self.hidden_dim // 2, device=device))
 
-    def _get_lstm_features(self, sentence, length):
-        batch_size, seq_len = sentence.size(0), sentence.size(1)
-        embeds = self.word_embeds(input_ids=sentence, output_hidden_states=True, output_attentions=True)
+    def _get_lstm_features(self, input_ids, input_mask):
+        batch_size = input_ids.size(0)
+        embeds = self.word_embeds(input_ids=input_ids, attention_mask=input_mask, output_hidden_states=True, output_attentions=True)
         # idx->embedding
         all_hidden_states, all_attention = embeds[-2:]
         embeds = all_hidden_states[-2]
 
         # LSTM forward
-        self.hidden = self.init_hidden(batch_size, sentence.device)
+        self.hidden = self.init_hidden(batch_size, input_ids.device)
         lstm_out, self.hidden = self.lstm(embeds, self.hidden)
         lstm_feats = self.hidden2tag(lstm_out)
         return lstm_feats
 
-    def forward(self, sentence, tags, mask, length):
-        emissions = self._get_lstm_features(sentence, length)
-        loss = -self.crf(emissions, tags, mask, reduction='mean')
+    def forward(self, input_ids, label, input_mask, output_mask):
+        # print(input_ids)
+        # print(label)
+        # print(input_mask)
+        # print(output_mask)
+        emissions = self._get_lstm_features(input_ids, input_mask)
+        loss = -self.crf(emissions, label, output_mask, reduction='mean')
         return loss
 
-    def infer(self, sentence, mask, length):
-        emissions = self._get_lstm_features(sentence, length)
-        return self.crf.decode(emissions, mask)
+    def infer(self, input_ids, input_mask, output_mask):
+        emissions = self._get_lstm_features(input_ids, input_mask)
+        return self.crf.decode(emissions, output_mask)

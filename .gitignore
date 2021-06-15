@@ -1,3 +1,7 @@
 __pycache__/
 .vscode/
 venv/
+cws_result.txt
+bert/data/datasave.pkl
+save/*
+bert/save/*

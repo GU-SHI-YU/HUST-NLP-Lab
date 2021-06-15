@@ -16,7 +16,7 @@ def get_param():
     parser.add_argument('--max_epoch', type=int, default=10)
     parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--hidden_dim', type=int, default=200)
-    parser.add_argument('--cuda', action='store_true', default=False)
+    parser.add_argument('--cuda', action='store_true', default=True)
     return parser.parse_args()
 
 
@@ -67,7 +67,6 @@ def main(args):
         y_train = pickle.load(inp)
         x_test = pickle.load(inp)
         y_test = pickle.load(inp)
-        encoded = pickle.load(inp)
 
     model = CWS(len(word2id), tag2id, args.embedding_dim, args.hidden_dim)
     if use_cuda:

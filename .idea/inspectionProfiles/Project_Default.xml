@@ -1,0 +1,15 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="tensorflow.app" />
+          <option value="tensorflow.train" />
+          <option value="tensorboard.summary._tf.summary.merge_all" />
+          <option value="tensorboard.summary._tf.summary.FileWriter" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>

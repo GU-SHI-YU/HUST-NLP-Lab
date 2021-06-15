@@ -31,7 +31,6 @@ class CWS(nn.Module):
 
         # idx->embedding
         embeds = self.word_embeds(sentence.view(-1)).reshape(batch_size, seq_len, -1)
-        print(embeds, embeds.shape)
         embeds = pack_padded_sequence(embeds, length, batch_first=True)
 
         # LSTM forward

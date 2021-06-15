@@ -39,8 +39,10 @@ def handle_data():
     处理数据，并保存至savepath
     :return:
     '''
-    x_data = []
-    y_data = []
+    input_ids_l = []
+    input_mask_l = []
+    label_l = []
+    output_mask_l = []
     line_num = 0
     with open(INPUT_DATA, 'r', encoding="utf-8") as ifp:
         for line in ifp:
@@ -48,34 +50,53 @@ def handle_data():
             line = line.strip()
             if not line:
                 continue
-            line_x = tokenizer.encode(line)
-            x_data.append(line_x)
-            lineArr = line.split()
-            line_y_t = []
-            for item in lineArr:
-                line_y_t.extend(getList(item))
-            line_y = []
-            pos = 0
-            for x in line_x:
-                if x == 100 or x == 101 or x == 102:
-                    line_y.append(3)
-                else:
-                    line_y.append(line_y_t[pos])
-                    pos += 1
-            y_data.append(line_y)
+            words = line.split()
+            sent = ''.join(words)
+            tokens = [i for i in sent]
+            label = []
+            for item in words:
+                label.extend(getList(item))
+            if len(tokens) > 512 - 2:
+                tokens = tokens[: (512 - 2)]
+                label = label[: (512 - 2)]
+            tokens_cs = '[CLS]' + ' '.join(tokens) + '[SEP]'
+            tokenized_text = tokenizer.tokenize(tokens_cs)
+            input_ids = tokenizer.convert_tokens_to_ids(tokenized_text)
+            input_mask = [1] * len(input_ids)
+            label = [3] + label + [3]
+            while len(input_ids) < 512:
+                input_ids.append(0)
+                input_mask.append(0)
+            while len(label) < 512:
+                label.append(-1)
 
-    print(x_data[0])
-    print(tokenizer.decode(x_data[0]))
-    print(y_data[0])
-    print([id2tag[i] for i in y_data[0]])
-    x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=0.1, random_state=43)
+            output_mask = [1] * len(tokens)
+            output_mask = [1] + output_mask + [1]
+            while len(output_mask) < 512:
+                output_mask.append(0)
+
+            assert len(input_ids) == 512
+            assert len(input_mask) == 512
+            assert len(label) == 512
+            assert len(output_mask) == 512
+
+            input_ids_l.append(input_ids)
+            input_mask_l.append(input_mask)
+            label_l.append(label)
+            output_mask_l.append(output_mask)
+
+    print(tokenizer.convert_ids_to_tokens(input_ids_l[0]))
+    print(input_ids_l[0])
+    print(input_mask_l[0])
+    print(label_l[0])
+    print(output_mask_l[0])
     with open(SAVE_PATH, 'wb') as outp:
         pickle.dump(tag2id, outp)
         pickle.dump(id2tag, outp)
-        pickle.dump(x_train, outp)
-        pickle.dump(y_train, outp)
-        pickle.dump(x_test, outp)
-        pickle.dump(y_test, outp)
+        pickle.dump(input_ids_l, outp)
+        pickle.dump(label_l, outp)
+        pickle.dump(input_mask_l, outp)
+        pickle.dump(output_mask_l, outp)
 
 
 if __name__ == "__main__":

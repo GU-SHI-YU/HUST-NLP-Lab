@@ -3,20 +3,20 @@ import logging
 import argparse
 import os
 from re import L
+import numpy as np
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, TensorDataset
 from torch.optim import Adam
 from model import CWS
-from dataloader import Sentence
 
 def get_param():
     parser = argparse.ArgumentParser()
     parser.add_argument('--embedding_dim', type=int, default=312)
-    parser.add_argument('--lr', type=float, default=0.005)
+    parser.add_argument('--lr', type=float, default=0.00001)
     parser.add_argument('--max_epoch', type=int, default=10)
-    parser.add_argument('--batch_size', type=int, default=128)
-    parser.add_argument('--hidden_dim', type=int, default=512)
-    parser.add_argument('--cuda', action='store_true', default=False)
+    parser.add_argument('--batch_size', type=int, default=24)
+    parser.add_argument('--hidden_dim', type=int, default=256)
+    parser.add_argument('--cuda', action='store_true', default=True)
     return parser.parse_args()
 
 
@@ -61,10 +61,10 @@ def main(args):
     with open('data/datasave.pkl', 'rb') as inp:
         tag2id = pickle.load(inp)
         id2tag = pickle.load(inp)
-        x_train = pickle.load(inp)
-        y_train = pickle.load(inp)
-        x_test = pickle.load(inp)
-        y_test = pickle.load(inp)
+        input_ids_l = pickle.load(inp)
+        label_l = pickle.load(inp)
+        input_mask_l = pickle.load(inp)
+        output_mask_l = pickle.load(inp)
 
     model = CWS(0, tag2id, args.embedding_dim, args.hidden_dim)
     if use_cuda:
@@ -74,20 +74,40 @@ def main(args):
 
     optimizer = Adam(model.parameters(), lr=args.lr)
 
+    random_order = list(range(len(input_ids_l)))
+    np.random.shuffle(random_order)
+    input_ids_l = [input_ids_l[i] for i in random_order]
+    input_mask_l = [input_mask_l[i] for i in random_order]
+    label_l = [label_l[i] for i in random_order]
+    output_mask_l = [output_mask_l[i] for i in random_order]
+
+    data_size = len(input_ids_l)
+    test_size = data_size // 10
+
+    test_input_ids = torch.LongTensor(input_ids_l[:test_size])
+    train_input_ids = torch.LongTensor(input_ids_l[test_size:])
+    test_input_mask = torch.BoolTensor(input_mask_l[:test_size])
+    train_input_mask = torch.BoolTensor(input_mask_l[test_size:])
+    test_label = torch.LongTensor(label_l[:test_size])
+    train_label = torch.LongTensor(label_l[test_size:])
+    test_output_mask = torch.BoolTensor(output_mask_l[:test_size])
+    train_output_mask = torch.BoolTensor(output_mask_l[test_size:])
+
+    train_dataset = TensorDataset(train_input_ids, train_input_mask, train_label, train_output_mask)
+    test_dataset = TensorDataset(test_input_ids, test_input_mask, test_label, test_output_mask)
+
     train_data = DataLoader(
-        dataset=Sentence(x_train, y_train),
+        dataset=train_dataset,
         shuffle=True,
         batch_size=args.batch_size,
-        collate_fn=Sentence.collate_fn,
         drop_last=False,
         num_workers=6
     )
 
     test_data = DataLoader(
-        dataset=Sentence(x_test[:1000], y_test[:1000]),
+        dataset=test_dataset,
         shuffle=False,
         batch_size=args.batch_size,
-        collate_fn=Sentence.collate_fn,
         drop_last=False,
         num_workers=6
     )
@@ -95,14 +115,14 @@ def main(args):
     for epoch in range(args.max_epoch):
         step = 0
         log = []
-        for sentence, label, mask, length in train_data:
+        for input_ids, input_mask, label, output_mask in train_data:
             if use_cuda:
-                sentence = sentence.cuda()
+                input_ids = input_ids.cuda()
                 label = label.cuda()
-                mask = mask.cuda()
-            print(sentence.view(-1))
+                input_mask = input_mask.cuda()
+                output_mask = output_mask.cuda()
             # forward
-            loss = model(sentence, label, mask, length)
+            loss = model(input_ids, label, input_mask, output_mask)
             log.append(loss.item())
 
             # backward
@@ -121,17 +141,27 @@ def main(args):
         with torch.no_grad():
             model.eval()
             cur = 0
-            for sentence, label, mask, length in test_data:
+            for input_ids, input_mask, label, output_mask in test_data:
                 if use_cuda:
-                    sentence = sentence.cuda()
+                    input_ids = input_ids.cuda()
                     label = label.cuda()
-                    mask = mask.cuda()
-                predict = model.infer(sentence, mask, length)
+                    input_mask = input_mask.cuda()
+                    output_mask = output_mask.cuda()
+                predict = model.infer(input_ids, input_mask, output_mask)
 
-                for i in range(len(length)):
-                    entity_split(sentence[i, :length[i]], predict[i], id2tag, entity_predict, cur)
-                    entity_split(sentence[i, :length[i]], label[i, :length[i]], id2tag, entity_label, cur)
-                    cur += length[i]
+                for i in range(len(predict)):
+                    length = len([input_ids[i][j] for j in input_mask[i] if j == 1])
+                    entity_split(input_ids[i, :length],
+                                 predict[i],
+                                 id2tag,
+                                 entity_predict,
+                                 cur)
+                    entity_split(input_ids[i, :length],
+                                 label[i, :length],
+                                 id2tag,
+                                 entity_label,
+                                 cur)
+                    cur += length
 
             right_predict = [i for i in entity_predict if i in entity_label]
             if len(right_predict) != 0:
@@ -139,11 +169,11 @@ def main(args):
                 recall = float(len(right_predict)) / len(entity_label)
                 logging.info("precision: %f" % precision)
                 logging.info("recall: %f" % recall)
-                logging.info("fscore: %f" % ((2 * precision * recall) / (precision + recall)))
+                logging.info("f1score: %f" % ((2 * precision * recall) / (precision + recall)))
             else:
                 logging.info("precision: 0")
                 logging.info("recall: 0")
-                logging.info("fscore: 0")
+                logging.info("f1score: 0")
             model.train()
 
         path_name = "./save/model_epoch" + str(epoch) + ".pkl"
