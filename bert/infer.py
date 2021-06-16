@@ -5,6 +5,7 @@ from transformers import AlbertModel, BertTokenizer
 if __name__ == '__main__':
     model = torch.load('save/model_epoch9.pkl', map_location=torch.device('cpu'))
     output = open('cws_result.txt', 'w', encoding='utf-8')
+    label_output = open('./data/cws_res.txt', 'w', encoding='utf8')
     tokenizer = BertTokenizer.from_pretrained("clue/albert_chinese_tiny")
 
     with open('data/datasave.pkl', 'rb') as inp:
@@ -38,8 +39,13 @@ if __name__ == '__main__':
             output_mask = torch.BoolTensor(output_mask).view(1, -1)
 
             predict = model.infer(input_ids, input_mask, output_mask)[0]
+
             for i in range(len(test)):
                 print(test[i], end='', file=output)
+                print(id2tag[predict[i+1]], end=' ', file=label_output)
                 if id2tag[predict[i+1]] in ['E', 'S']:
                     print(' ', end='', file=output)
             print(file=output)
+            print(file=label_output)
+    output.close()
+    label_output.close()
