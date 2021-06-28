@@ -11,12 +11,13 @@ from model import CWS
 
 def get_param():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--embedding_dim', type=int, default=312)
+    parser.add_argument('--embedding_dim', type=int, default=768)
     parser.add_argument('--lr', type=float, default=0.00001)
     parser.add_argument('--max_epoch', type=int, default=10)
-    parser.add_argument('--batch_size', type=int, default=24)
+    parser.add_argument('--batch_size', type=int, default=2)
     parser.add_argument('--hidden_dim', type=int, default=256)
     parser.add_argument('--cuda', action='store_true', default=True)
+    parser.add_argument('--model', type=str, default='hfl/chinese-roberta-wwm-ext')
     return parser.parse_args()
 
 

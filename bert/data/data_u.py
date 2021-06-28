@@ -10,35 +10,34 @@ id2tag = ['B', 'M', 'E', 'S']  # B：分词头部 M：分词词中 E：分词词
 tag2id = {'B': 0, 'M': 1, 'E': 2, 'S': 3}
 word2id = {}
 id2word = []
-tokenizer = BertTokenizer.from_pretrained("clue/albert_chinese_tiny")
+tokenizer = BertTokenizer.from_pretrained("hfl/chinese-roberta-wwm-ext")
 
 
-
-def getList(input_str):
-    '''
+def get_list(input_str):
+    """
     单个分词转换为tag序列
     :param input_str: 单个分词
     :return: tag序列
-    '''
-    outpout_str = []
+    """
+    output_str = []
     if len(input_str) == 1:
-        outpout_str.append(tag2id['S'])
+        output_str.append(tag2id['S'])
     elif len(input_str) == 2:
-        outpout_str = [tag2id['B'], tag2id['E']]
+        output_str = [tag2id['B'], tag2id['E']]
     else:
         M_num = len(input_str) - 2
         M_list = [tag2id['M']] * M_num
-        outpout_str.append(tag2id['B'])
-        outpout_str.extend(M_list)
-        outpout_str.append(tag2id['E'])
-    return outpout_str
+        output_str.append(tag2id['B'])
+        output_str.extend(M_list)
+        output_str.append(tag2id['E'])
+    return output_str
 
 
 def handle_data():
-    '''
+    """
     处理数据，并保存至savepath
     :return:
-    '''
+    """
     input_ids_l = []
     input_mask_l = []
     label_l = []
@@ -55,7 +54,7 @@ def handle_data():
             tokens = [i for i in sent]
             label = []
             for item in words:
-                label.extend(getList(item))
+                label.extend(get_list(item))
             if len(tokens) > 512 - 2:
                 tokens = tokens[: (512 - 2)]
                 label = label[: (512 - 2)]

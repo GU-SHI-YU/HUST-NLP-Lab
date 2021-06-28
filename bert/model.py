@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 from torchcrf import CRF
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
-from transformers import AlbertModel, BertTokenizer
+from transformers import BertModel, BertTokenizer
 
 
 class CWS(nn.Module):
@@ -16,8 +16,8 @@ class CWS(nn.Module):
         self.tag2id = tag2id
         self.tagset_size = len(tag2id)
 
-        self.tokenizer = BertTokenizer.from_pretrained("clue/albert_chinese_tiny")
-        self.word_embeds = AlbertModel.from_pretrained("clue/albert_chinese_tiny")
+        self.tokenizer = BertTokenizer.from_pretrained("hfl/chinese-roberta-wwm-ext")
+        self.word_embeds = BertModel.from_pretrained("hfl/chinese-roberta-wwm-ext")
 
         self.lstm = nn.LSTM(embedding_dim, hidden_dim // 2, num_layers=1,
                             bidirectional=True, batch_first=True)

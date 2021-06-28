@@ -3,10 +3,10 @@ import pickle
 from transformers import AlbertModel, BertTokenizer
 
 if __name__ == '__main__':
-    model = torch.load('save/model_epoch9.pkl', map_location=torch.device('cpu'))
+    model = torch.load('save/model_epoch15.pkl', map_location=torch.device('cpu'))
     output = open('cws_result.txt', 'w', encoding='utf-8')
     label_output = open('./data/cws_res.txt', 'w', encoding='utf8')
-    tokenizer = BertTokenizer.from_pretrained("clue/albert_chinese_tiny")
+    tokenizer = BertTokenizer.from_pretrained("voidful/albert_chinese_base")
 
     with open('data/datasave.pkl', 'rb') as inp:
         tag2id = pickle.load(inp)
